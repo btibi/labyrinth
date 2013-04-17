@@ -34,7 +34,7 @@ public class Labyrinth {
 
 		LOG.info(s.toString());
 
-        //labyrinthGetter.getLabyrint("pacman");
+		UndirectedGraph<Location, DefaultEdge> labyrinth2 = LabyrinthGetter.getLabyrinth("pacman");
 
 	}
 
