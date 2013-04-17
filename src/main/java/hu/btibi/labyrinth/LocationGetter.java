@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 public class LocationGetter {
-	
 	private static final String URL = "http://labyrinth.lbi.co.uk/Maze/Location/%s/%s/json"; 
 
 	private String mazeName;

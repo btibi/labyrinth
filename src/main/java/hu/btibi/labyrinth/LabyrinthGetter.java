@@ -1,94 +1,63 @@
 package hu.btibi.labyrinth;
 
 import static com.google.common.collect.Iterables.find;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Lists.newArrayList;
+import hu.btibi.labyrinth.domain.DefaultEdge;
+import hu.btibi.labyrinth.domain.Location;
+import hu.btibi.labyrinth.predicates.LocationById;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import hu.btibi.labyrinth.domain.DefaultEdge;
-import hu.btibi.labyrinth.domain.LocationType;
-import org.jgrapht.Graph;
-import org.jgrapht.GraphPath;
 import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.SimpleGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import hu.btibi.labyrinth.domain.Location;
 
 public class LabyrinthGetter {
 	static final Logger LOG = LoggerFactory.getLogger(LabyrinthGetter.class);
 
-	public void getLabyrint(String mazeName) throws IOException {
-		LocationGetter locationGetter = new LocationGetter(mazeName);
+	private static final String STATR_LOCATION_ID = "start";
 
-		Map<String, Location> locationStorage = newHashMap();
-		UndirectedGraph<Location, DefaultEdge> graph = new SimpleGraph(DefaultEdge.class);
+	public static UndirectedGraph<Location, DefaultEdge> getLabyrinth(String mazeName) throws IOException {
+		UndirectedGraph<Location, DefaultEdge> graph = new SimpleGraph<Location, DefaultEdge>(DefaultEdge.class);
 
-		get(locationGetter, "start", locationStorage, graph);
+		LOG.info("------------------- Start init {} graph -------------------", mazeName);
+		
+		initaliazeGraph(new LocationGetter(mazeName), STATR_LOCATION_ID, graph);
+		
+		LOG.info("Graph vertex number: {} Graph edge number: {}", graph.vertexSet().size(), graph.edgeSet().size());
+		LOG.info("------------------- End init {} graph -------------------", mazeName);
 
-        Location start = Iterables.find(locationStorage.values(), getPredicate(LocationType.START));
-        Location exit = Iterables.find(locationStorage.values(), getPredicate(LocationType.EXIT));
-
-        List<DefaultEdge> pathBetween = DijkstraShortestPath.findPathBetween(graph, start, exit);
-
-        StringBuilder s = new StringBuilder(start.getLocationId());
-        for (DefaultEdge edge : pathBetween) {
-            s.append("," + ((Location) edge.getSource()).getLocationId());
-        }
-
-        LOG.info(s.toString());
-
-
-
-
+		return graph;
 
 	}
 
-    private Predicate<Location> getPredicate(final LocationType type) {
-        return new Predicate<Location>() {
-            @Override
-            public boolean apply(Location location) {
-                return location.getLocationType() == type;
-            }
-        };
-    }
-
-    private void get(LocationGetter locationGetter, String locationId, Map<String, Location> locationStorage, UndirectedGraph<Location, DefaultEdge> graph) throws IOException {
-
+	private static void initaliazeGraph(LocationGetter locationGetter, String locationId, UndirectedGraph<Location, DefaultEdge> graph) throws IOException {
 		Location location = LocationConverter.from(locationGetter.getLocation(locationId));
+		LOG.info("Init Location LocationId: {}, LocationType: {}", location.getLocationId(), location.getLocationType());
 
-		locationStorage.put(location.getLocationId(), location);
-        graph.addVertex(location);
+		graph.addVertex(location);
 
-		LOG.info("LocationId: {}, LocationType: {}", location.getLocationId(), location.getLocationType());
+		for (String nextFullLocationID : location.getExits()) {
 
-		for (final String fullLocationID : location.getExits()) {
-			String nextLocationId = getLocationID(fullLocationID);
+			String nextLocationId = getLocationId(nextFullLocationID);
 
-            Location existsLocation = locationStorage.get(nextLocationId);
+			Location previus = find(graph.vertexSet(), new LocationById(nextLocationId), null);
 
-            if (existsLocation == null) {
-				get(locationGetter, nextLocationId, locationStorage, graph);
+			if (previus == null) {
+				initaliazeGraph(locationGetter, nextLocationId, graph);
 			} else {
-                graph.addEdge(location, existsLocation);
-            }
+				graph.addEdge(previus, location);
+			}
 		}
 
 	}
 
-	private String getLocationID(String fullLocationID) {
-		ArrayList<String> strings = Lists.newArrayList(Splitter.on("/").split(fullLocationID));
+	private static String getLocationId(String fullLocationID) {
+		ArrayList<String> strings = newArrayList(Splitter.on("/").split(fullLocationID));
 		return strings.get(strings.size() - 1);
 	}
 }
