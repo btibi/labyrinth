@@ -29,5 +29,13 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.1</version>
         </dependency>
-	</dependencies>
+
+        <dependency>
+            <groupId>net.sf.jgrapht</groupId>
+            <artifactId>jgrapht</artifactId>
+            <version>0.8.3</version>
+        </dependency>
+
+
+    </dependencies>
 </project>

@@ -15,6 +15,8 @@ public class Labyrinth {
 
         labyrinthGetter.getLabyrint("easy");
 
+        labyrinthGetter.getLabyrint("pacman");
+
 	}
 
 
