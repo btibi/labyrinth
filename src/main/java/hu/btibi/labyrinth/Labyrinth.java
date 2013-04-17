@@ -9,20 +9,14 @@ import org.slf4j.LoggerFactory;
 
 public class Labyrinth {
 
-	static final Logger LOG = LoggerFactory.getLogger(Labyrinth.class);
+    public static void main(String[] args) throws IOException {
 
-	public static void main(String[] args) throws IOException {
+        LabyrinthGetter labyrinthGetter = new LabyrinthGetter();
 
-		LocationGetter locationGetter = new LocationGetter("easy");
-
-		String locationString = locationGetter.getLocation("start");
-
-		LOG.info("Locatoion JSON string: {}", locationString);
-
-		Location location = LocationConverter.from(locationString);
-
-		LOG.info("Locatoion object: {}", location);
+        labyrinthGetter.getLabyrint("easy");
 
 	}
+
+
 
 }
