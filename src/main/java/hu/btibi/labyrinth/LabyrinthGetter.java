@@ -1,6 +1,5 @@
 package hu.btibi.labyrinth;
 
-import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Lists.newArrayList;
 import hu.btibi.labyrinth.domain.DefaultEdge;
 import hu.btibi.labyrinth.domain.Location;
@@ -8,6 +7,7 @@ import hu.btibi.labyrinth.predicates.LocationById;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 public class LabyrinthGetter {
 	static final Logger LOG = LoggerFactory.getLogger(LabyrinthGetter.class);
@@ -22,12 +23,22 @@ public class LabyrinthGetter {
 	private static final String STATR_LOCATION_ID = "start";
 
 	public static UndirectedGraph<Location, DefaultEdge> getLabyrinth(String mazeName) throws IOException {
-		UndirectedGraph<Location, DefaultEdge> graph = new SimpleGraph<Location, DefaultEdge>(DefaultEdge.class);
+		LocationGetter locationGetter = new LocationGetter(mazeName);
 
 		LOG.info("------------------- Start init {} graph -------------------", mazeName);
-		
-		initaliazeGraph(new LocationGetter(mazeName), STATR_LOCATION_ID, graph);
-		
+
+		UndirectedGraph<Location, DefaultEdge> graph = new SimpleGraph<Location, DefaultEdge>(DefaultEdge.class);
+
+		Location startLocation = locationGetter.getLocation(STATR_LOCATION_ID);
+		List<Location> locations = newArrayList(startLocation);
+		graph.addVertex(locations.get(0));
+
+		while (!locations.isEmpty()) {
+
+			locations = getExitsLocation(locations, locationGetter, graph);
+
+		}
+
 		LOG.info("Graph vertex number: {} Graph edge number: {}", graph.vertexSet().size(), graph.edgeSet().size());
 		LOG.info("------------------- End init {} graph -------------------", mazeName);
 
@@ -35,27 +46,26 @@ public class LabyrinthGetter {
 
 	}
 
-	private static void initaliazeGraph(LocationGetter locationGetter, String locationId, UndirectedGraph<Location, DefaultEdge> graph) throws IOException {
-		Location location = LocationConverter.from(locationGetter.getLocation(locationId));
-		LOG.info("Init Location LocationId: {}, LocationType: {}", location.getLocationId(), location.getLocationType());
+	private static List<Location> getExitsLocation(List<Location> locations, LocationGetter locationGetter, UndirectedGraph<Location, DefaultEdge> graph) throws IOException {
+		List<Location> nextLocations = newArrayList();
+		for (Location from : locations) {
 
-		graph.addVertex(location);
+			LOG.info("Init Location LocationId: {}, LocationType: {}", from.getLocationId(), from.getLocationType());
 
-		for (String nextFullLocationID : location.getExits()) {
+			for (String fullLocationId : from.getExits()) {
+				String nextLocationId = getLocationId(fullLocationId);
+				Location source = Iterables.find(graph.vertexSet(), new LocationById(nextLocationId), null);
+				if (source == null) {
+					source = locationGetter.getLocation(nextLocationId);
+					nextLocations.add(source);
+					graph.addVertex(source);
+				}
+				graph.addEdge(from, source);
+				LOG.info("Init Edge: {} - {}", from.getLocationId(), source.getLocationId());
 
-			String nextLocationId = getLocationId(nextFullLocationID);
-
-			Location previus = find(graph.vertexSet(), new LocationById(nextLocationId), null);
-
-			if (previus == null) {
-				initaliazeGraph(locationGetter, nextLocationId, graph);
-			} else {
-				graph.addEdge(previus, location);
-				LOG.info("Init Edge: {} - {}", previus.getLocationId(), location.getLocationId());
 			}
-			
 		}
-
+		return nextLocations;
 	}
 
 	private static String getLocationId(String fullLocationID) {

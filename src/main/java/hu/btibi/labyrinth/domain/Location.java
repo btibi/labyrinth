@@ -30,7 +30,6 @@ public class Location {
 			return true;
 		}
 		if (o instanceof Location) {
-			Location location = (Location) o;
 			return new EqualsBuilder().append(locationId, ((Location) o).getLocationId()).isEquals();
 		}
 
@@ -44,10 +43,7 @@ public class Location {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).
-			append(locationId).
-			append(locationType).
-			toString();
+		return new ToStringBuilder(this).append(locationId).append(locationType).toString();
 	}
 
 	Location() {
