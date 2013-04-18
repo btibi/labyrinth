@@ -17,8 +17,9 @@ public class LocationGetter {
 		InputStream locationStream = getLocationStream(locationId);
 		Scanner scanner = new Scanner(locationStream);
 		String locationString = scanner.useDelimiter("//Z").next();
-		scanner.close();
-		return locationString;
+        scanner.close();
+        locationStream.close();
+        return locationString;
 	}
 
 	private InputStream getLocationStream(String locationId) throws IOException {
