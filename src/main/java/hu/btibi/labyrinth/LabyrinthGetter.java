@@ -51,7 +51,9 @@ public class LabyrinthGetter {
 				initaliazeGraph(locationGetter, nextLocationId, graph);
 			} else {
 				graph.addEdge(previus, location);
+				LOG.info("Init Edge: {} - {}", previus.getLocationId(), location.getLocationId());
 			}
+			
 		}
 
 	}
