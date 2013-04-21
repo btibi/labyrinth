@@ -1,6 +1,8 @@
 settings/
 target/
+easy/
 .settings/org.eclipse.jdt.core.prefs
 .settings/org.eclipse.m2e.core.prefs
 labirinth_logFile.log
 labyrinth.iml
+labirinth_logFile.2013-04-19.log

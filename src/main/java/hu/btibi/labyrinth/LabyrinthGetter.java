@@ -18,11 +18,20 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 public class LabyrinthGetter {
-	static final Logger LOG = LoggerFactory.getLogger(LabyrinthGetter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LabyrinthGetter.class);
 
 	private static final String STATR_LOCATION_ID = "start";
 
 	public static UndirectedGraph<Location, DefaultEdge> getLabyrinth(String mazeName) throws IOException {
+		return Database.isExists(mazeName) ? getLabyrinthFromDb(mazeName) : getLabyrinthFromWeb(mazeName);
+	}
+
+	private static UndirectedGraph<Location, DefaultEdge> getLabyrinthFromDb(String mazeName) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet!");
+	}
+
+	private static UndirectedGraph<Location, DefaultEdge> getLabyrinthFromWeb(String mazeName) throws IOException {
 		LocationGetter locationGetter = new LocationGetter(mazeName);
 
 		LOG.info("------------------- Start init {} graph -------------------", mazeName);
@@ -43,7 +52,6 @@ public class LabyrinthGetter {
 		LOG.info("------------------- End init {} graph -------------------", mazeName);
 
 		return graph;
-
 	}
 
 	private static List<Location> getExitsLocation(List<Location> locations, LocationGetter locationGetter, UndirectedGraph<Location, DefaultEdge> graph) throws IOException {

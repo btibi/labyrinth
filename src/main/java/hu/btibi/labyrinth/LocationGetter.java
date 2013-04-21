@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocationGetter {
-	static final Logger LOG = LoggerFactory.getLogger(LabyrinthGetter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LabyrinthGetter.class);
 
 	private static final String URL = "http://labyrinth.lbi.co.uk/Maze/Location/%s/%s/json";
 
