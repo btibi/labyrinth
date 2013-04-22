@@ -23,12 +23,18 @@ public class LabyrinthGetter {
 	private static final String STATR_LOCATION_ID = "start";
 
 	public static UndirectedGraph<Location, DefaultEdge> getLabyrinth(String mazeName) throws IOException {
-		return Database.isExists(mazeName) ? getLabyrinthFromDb(mazeName) : getLabyrinthFromWeb(mazeName);
+		UndirectedGraph<Location, DefaultEdge> labyrinth;
+		if (Database.isExists(mazeName)) {
+			labyrinth = getLabyrinthFromDb(mazeName);
+		} else {
+			labyrinth = getLabyrinthFromWeb(mazeName);
+			Database.save(mazeName, labyrinth);
+		}
+		return labyrinth;
 	}
 
 	private static UndirectedGraph<Location, DefaultEdge> getLabyrinthFromDb(String mazeName) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet!");
+		return Database.getGraph(mazeName);
 	}
 
 	private static UndirectedGraph<Location, DefaultEdge> getLabyrinthFromWeb(String mazeName) throws IOException {

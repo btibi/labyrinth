@@ -12,6 +12,13 @@ public class Location {
 	private String locationId;
 	private LocationType locationType;
 
+	public Location(String locationId, LocationType locationType, List<String> exits) {
+		super();
+		this.locationId = locationId;
+		this.locationType = locationType;
+		this.exits = exits;
+	}
+
 	public LocationType getLocationType() {
 		return locationType;
 	}

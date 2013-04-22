@@ -1,7 +1,10 @@
 package hu.btibi.labyrinth;
 
+import static com.google.common.collect.Iterables.find;
 import hu.btibi.labyrinth.domain.DefaultEdge;
 import hu.btibi.labyrinth.domain.Location;
+import hu.btibi.labyrinth.domain.LocationType;
+import hu.btibi.labyrinth.predicates.LocationByType;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,11 +23,10 @@ public class Labyrinth {
 	public static void main(String[] args) throws IOException {
 
 		UndirectedGraph<Location, DefaultEdge> labyrinth = LabyrinthGetter.getLabyrinth("easy");
-		Database.save("easy", labyrinth);
-//		Location start = find(labyrinth.vertexSet(), new LocationByType(LocationType.START));
-//		Location exit = find(labyrinth.vertexSet(), new LocationByType(LocationType.EXIT));
-//		String path = path(labyrinth, start, exit);
-//		LOG.info("Utvonal {} lepest tartalmaz. Lepesek: {}", path.split(",").length, path);
+		Location start = find(labyrinth.vertexSet(), new LocationByType(LocationType.START));
+		Location exit = find(labyrinth.vertexSet(), new LocationByType(LocationType.EXIT));
+		String path = path(labyrinth, start, exit);
+		LOG.info("Utvonal {} lepest tartalmaz. Lepesek: {}", path.split(",").length, path);
 //
 //		UndirectedGraph<Location, DefaultEdge> labyrinth2 = LabyrinthGetter.getLabyrinth("pacman");
 //		Location start2 = find(labyrinth2.vertexSet(), new LocationByType(LocationType.START));

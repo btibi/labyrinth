@@ -1,26 +1,36 @@
 package hu.btibi.labyrinth;
 
+import static com.google.common.collect.Iterables.find;
 import hu.btibi.labyrinth.domain.DefaultEdge;
 import hu.btibi.labyrinth.domain.Location;
+import hu.btibi.labyrinth.domain.LocationType;
+import hu.btibi.labyrinth.predicates.LocationById;
 
 import java.io.File;
+import java.util.List;
 
 import org.jgrapht.UndirectedGraph;
+import org.jgrapht.graph.SimpleGraph;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
+import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 public class Database {
 	private static final Logger LOG = LoggerFactory.getLogger(Database.class);
 
-	private static final String DB_PATH = "d:\\workspace\\labyrinth\\";
+	private static final String DB_PATH = "d:\\workspace\\labyrinth\\db\\";
 	private static final String LOCATION_ID_KEY = "locationId";
 	private static final String LOCATION_TYPE_KEY = "locationType";
+	private static final String LOCATION_EXIT_KEY = "locationExit";
 
 	private GraphDatabaseService graphDb;
 	private Index<Node> nodeIndex;
@@ -30,10 +40,10 @@ public class Database {
 	}
 
 	public static boolean isExists(String dbName) {
-		return new File(dbName).exists();
+		return new File(DB_PATH + dbName).exists();
 	}
 
-	public UndirectedGraph<Location, DefaultEdge> getGraph(String dbName) {
+	public static UndirectedGraph<Location, DefaultEdge> getGraph(String dbName) {
 		LOG.info("------------------- Start get {} graph -------------------", dbName);
 		Database db = new Database();
 		db.createDb(dbName);
@@ -45,8 +55,25 @@ public class Database {
 	}
 
 	private UndirectedGraph<Location, DefaultEdge> getData() {
-		// TODO Auto-generated method stub
-		return null;
+		SimpleGraph<Location, DefaultEdge> graph = new SimpleGraph<Location, DefaultEdge>(DefaultEdge.class);
+		GlobalGraphOperations globalGraphOperations = GlobalGraphOperations.at(graphDb);
+		for (Node node : globalGraphOperations.getAllNodes()) {
+			if (node.getId() != 0) {
+				String locationId = String.valueOf(node.getProperty(LOCATION_ID_KEY));
+				LocationType locationType = LocationType.valueOf(node.getProperty(LOCATION_TYPE_KEY).toString());
+				List<String> exist = Lists.newArrayList((String[]) node.getProperty(LOCATION_EXIT_KEY));
+				graph.addVertex(new Location(locationId, locationType, exist));
+			}
+		}
+
+		for (Relationship relationship : globalGraphOperations.getAllRelationships()) {
+			Location source = find(graph.vertexSet(), new LocationById(relationship.getStartNode().getProperty(LOCATION_ID_KEY).toString()));
+			Location target = find(graph.vertexSet(), new LocationById(relationship.getEndNode().getProperty(LOCATION_ID_KEY).toString()));
+
+			graph.addEdge(source, target);
+		}
+
+		return graph;
 	}
 
 	public static void save(String dbName, UndirectedGraph<Location, DefaultEdge> graph) {
@@ -58,8 +85,8 @@ public class Database {
 		LOG.info("------------------- End save {} graph -------------------", dbName);
 	}
 
-	private void createDb(String mazeName) {
-		graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(DB_PATH + mazeName);
+	private void createDb(String dbName) {
+		graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(DB_PATH + dbName);
 		nodeIndex = graphDb.index().forNodes("nodes");
 		registerShutdownHook(graphDb);
 	}
@@ -82,6 +109,8 @@ public class Database {
 			Node node = graphDb.createNode();
 			node.setProperty(LOCATION_ID_KEY, location.getLocationId());
 			node.setProperty(LOCATION_TYPE_KEY, location.getLocationType().name());
+			node.setProperty(LOCATION_EXIT_KEY, location.getExits().toArray(new String[location.getExits().size()]));
+
 			nodeIndex.add(node, LOCATION_ID_KEY, location.getLocationId());
 			LOG.info("Save Location LocationId: {}", location.getLocationId());
 		}
@@ -95,17 +124,12 @@ public class Database {
 			Node sourceNode = nodeIndex.get(LOCATION_ID_KEY, source.getLocationId()).getSingle();
 			Node targetNode = nodeIndex.get(LOCATION_ID_KEY, target.getLocationId()).getSingle();
 
-			sourceNode.createRelationshipTo(targetNode, new RelationshipType() {
-
-				public String name() {
-					return source.getLocationId() + " - " + target.getLocationId();
-				}
-			});
+			sourceNode.createRelationshipTo(targetNode, RelationType.GENERAL);
 			LOG.info("Save Edge: {} - {}", source.getLocationId(), target.getLocationId());
 		}
 	}
 
-	private void shutDown(String mazeName) {
+	private void shutDown(String dbName) {
 		graphDb.shutdown();
 	}
 
@@ -116,6 +140,10 @@ public class Database {
 				graphDb.shutdown();
 			}
 		});
+	}
+
+	private enum RelationType implements RelationshipType {
+		GENERAL;
 	}
 
 }
