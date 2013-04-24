@@ -7,6 +7,7 @@ import hu.btibi.labyrinth.domain.LocationType;
 import hu.btibi.labyrinth.predicates.LocationByType;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jgrapht.UndirectedGraph;
@@ -27,19 +28,28 @@ public class Labyrinth {
 		Location exit = find(labyrinth.vertexSet(), new LocationByType(LocationType.EXIT));
 		String path = path(labyrinth, start, exit);
 		LOG.info("Utvonal {} lepest tartalmaz. Lepesek: {}", path.split(",").length, path);
-//
-//		UndirectedGraph<Location, DefaultEdge> labyrinth2 = LabyrinthGetter.getLabyrinth("pacman");
-//		Location start2 = find(labyrinth2.vertexSet(), new LocationByType(LocationType.START));
-//		Location powerpill = find(labyrinth2.vertexSet(), new LocationByType(LocationType.POWERPILL));
-//		Location exit2 = find(labyrinth2.vertexSet(), new LocationByType(LocationType.EXIT));
-//		String subPath1 = path(labyrinth2, start2, powerpill);
-//		String subPath2 = path(labyrinth2, powerpill, exit2);
-//		ArrayList<String> l = Lists.newArrayList(subPath2.split(","));
-//		l.remove(0);
-//		subPath2 = Joiner.on(",").join(l);
-//		String path2 = subPath1 + "," + subPath2;
-//		String[] split = path2.split(",");
-//		LOG.info("Utvonal {} lepest tartalmaz. Lepesek: {}", split.length, path2);
+		
+		DistanceMatrix distanceMatrix = new DistanceMatrix(labyrinth);
+		LOG.info("Utvonal {} lepest tartalmaz. Lepesek: {}",distanceMatrix.getPath(start, exit).size(), distanceMatrix.getPathToString(start, exit));
+		
+		
+
+		UndirectedGraph<Location, DefaultEdge> labyrinth2 = LabyrinthGetter.getLabyrinth("pacman");
+		Location start2 = find(labyrinth2.vertexSet(), new LocationByType(LocationType.START));
+		Location powerpill = find(labyrinth2.vertexSet(), new LocationByType(LocationType.POWERPILL));
+		Location exit2 = find(labyrinth2.vertexSet(), new LocationByType(LocationType.EXIT));
+		String subPath1 = path(labyrinth2, start2, powerpill);
+		String subPath2 = path(labyrinth2, powerpill, exit2);
+		ArrayList<String> l = Lists.newArrayList(subPath2.split(","));
+		l.remove(0);
+		subPath2 = Joiner.on(",").join(l);
+		String path2 = subPath1 + "," + subPath2;
+		String[] split = path2.split(",");
+		LOG.info("Utvonal {} lepest tartalmaz. Lepesek: {}", split.length, path2);
+		
+		DistanceMatrix distanceMatrix2 = new DistanceMatrix(labyrinth2);
+		
+		LOG.info("Utvonal {} lepest tartalmaz. Lepesek: {}", "61", distanceMatrix2.getPathToString(start2, powerpill) + "-------" + distanceMatrix2.getPathToString(powerpill, exit2));
 //
 //		UndirectedGraph<Location, DefaultEdge> labyrinth3 = LabyrinthGetter.getLabyrinth("glasgow");
 //		Location start3 = find(labyrinth3.vertexSet(), new LocationByType(LocationType.START));
@@ -74,6 +84,10 @@ public class Labyrinth {
 
 		List<DefaultEdge> pathBetween = DijkstraShortestPath.findPathBetween(labyrinth, start, exit);
 
+		return pathToString(start, pathBetween);
+	}
+
+	private static String pathToString(Location start, List<DefaultEdge> pathBetween) {
 		List<String> path = Lists.newArrayList(start.getLocationId());
 		for (DefaultEdge edge : pathBetween) {
 			path.add(path.contains(((Location) edge.getSource()).getLocationId()) ? ((Location) edge.getTarget()).getLocationId() : ((Location) edge.getSource()).getLocationId());
