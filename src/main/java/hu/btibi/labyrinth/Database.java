@@ -9,8 +9,8 @@ import hu.btibi.labyrinth.predicates.LocationById;
 import java.io.File;
 import java.util.List;
 
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.DirectedGraph;
+import org.jgrapht.graph.SimpleDirectedGraph;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -43,19 +43,19 @@ public class Database {
 		return new File(DB_PATH + dbName).exists();
 	}
 
-	public static UndirectedGraph<Location, DefaultEdge> getGraph(String dbName) {
+	public static DirectedGraph<Location, DefaultEdge> getGraph(String dbName) {
 		LOG.info("------------------- Start get {} graph -------------------", dbName);
 		Database db = new Database();
 		db.createDb(dbName);
-		UndirectedGraph<Location, DefaultEdge> graph = db.getData();
+		DirectedGraph<Location, DefaultEdge> graph = db.getData();
 		db.shutDown(dbName);
 		LOG.info("------------------- End get {} graph -------------------", dbName);
 
 		return graph;
 	}
 
-	private UndirectedGraph<Location, DefaultEdge> getData() {
-		SimpleGraph<Location, DefaultEdge> graph = new SimpleGraph<Location, DefaultEdge>(DefaultEdge.class);
+	private DirectedGraph<Location, DefaultEdge> getData() {
+		DirectedGraph<Location, DefaultEdge> graph = new SimpleDirectedGraph<Location, DefaultEdge>(DefaultEdge.class);
 		GlobalGraphOperations globalGraphOperations = GlobalGraphOperations.at(graphDb);
 		for (Node node : globalGraphOperations.getAllNodes()) {
 			if (node.getId() != 0) {
@@ -76,7 +76,7 @@ public class Database {
 		return graph;
 	}
 
-	public static void save(String dbName, UndirectedGraph<Location, DefaultEdge> graph) {
+	public static void save(String dbName, DirectedGraph<Location, DefaultEdge> graph) {
 		LOG.info("------------------- Start save {} graph -------------------", dbName);
 		Database db = new Database();
 		db.createDb(dbName);
@@ -91,7 +91,7 @@ public class Database {
 		registerShutdownHook(graphDb);
 	}
 
-	private void saveData(UndirectedGraph<Location, DefaultEdge> graph) {
+	private void saveData(DirectedGraph<Location, DefaultEdge> graph) {
 		Transaction tx = graphDb.beginTx();
 		try {
 			saveNodesAndIndexes(graph);
@@ -104,7 +104,7 @@ public class Database {
 		}
 	}
 
-	private void saveNodesAndIndexes(UndirectedGraph<Location, DefaultEdge> graph) {
+	private void saveNodesAndIndexes(DirectedGraph<Location, DefaultEdge> graph) {
 		for (Location location : graph.vertexSet()) {
 			Node node = graphDb.createNode();
 			node.setProperty(LOCATION_ID_KEY, location.getLocationId());
@@ -116,7 +116,7 @@ public class Database {
 		}
 	}
 
-	private void saveRelations(UndirectedGraph<Location, DefaultEdge> graph) {
+	private void saveRelations(DirectedGraph<Location, DefaultEdge> graph) {
 		for (DefaultEdge edge : graph.edgeSet()) {
 			final Location source = (Location) edge.getSource();
 			final Location target = (Location) edge.getTarget();

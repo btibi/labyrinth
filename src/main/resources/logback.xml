@@ -25,7 +25,7 @@
 	</appender>
 
 
-	<logger name="hu.btibi" level="TRACE" />
+	<logger name="hu.btibi.labyrinth" level="TRACE" />
 
 
 	<root level="debug">

@@ -11,24 +11,23 @@ import hu.btibi.labyrinth.domain.DefaultEdge;
 import hu.btibi.labyrinth.domain.Location;
 import hu.btibi.labyrinth.predicates.LocationByType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jgrapht.UndirectedGraph;
+import org.jgrapht.DirectedGraph;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 public class DistanceMatrix {
 	private Map<Location, Map<Location, List<Location>>> distanceMatrix;
 
-	public DistanceMatrix(UndirectedGraph<Location, DefaultEdge> labyrinth) {
+	public DistanceMatrix(DirectedGraph<Location, DefaultEdge> labyrinth) {
 		distanceMatrix = createDistanceMatrix(labyrinth);
 	}
 
-	private static Map<Location, Map<Location, List<Location>>> createDistanceMatrix(UndirectedGraph<Location, DefaultEdge> labyrinth) {
+	private static Map<Location, Map<Location, List<Location>>> createDistanceMatrix(DirectedGraph<Location, DefaultEdge> labyrinth) {
 		List<Location> locations = newArrayList();
 		locations.add(find(labyrinth.vertexSet(), new LocationByType(START)));
 		locations.addAll(newArrayList(filter(labyrinth.vertexSet(), new LocationByType(POWERPILL))));
@@ -37,43 +36,53 @@ public class DistanceMatrix {
 		Map<Location, Map<Location, List<Location>>> distanceMatrix = new HashMap<Location, Map<Location, List<Location>>>();
 		for (int i = 0; i < locations.size(); i++) {
 			Location start = locations.get(i);
-			if(!distanceMatrix.containsKey(start)) {
+			if (!distanceMatrix.containsKey(start)) {
 				distanceMatrix.put(start, new HashMap<Location, List<Location>>());
 			}
 			Map<Location, List<Location>> sub = distanceMatrix.get(start);
 			for (int j = i + 1; j < locations.size(); j++) {
 				Location end = locations.get(j);
-				List<Location> path = createPath(start, findPathBetween(labyrinth, start, end));
-				sub.put(end, path);
+				List<DefaultEdge> findPathBetween = findPathBetween(labyrinth, start, end);
+				if (findPathBetween != null) {
+					List<Location> path = createPath(findPathBetween);
+					sub.put(end, path);
 
-				if (!distanceMatrix.containsKey(end)) {
-					distanceMatrix.put(end, new HashMap<Location, List<Location>>());
+					if (!distanceMatrix.containsKey(end)) {
+						distanceMatrix.put(end, new HashMap<Location, List<Location>>());
+					}
+					Map<Location, List<Location>> reverse = distanceMatrix.get(end);
+					reverse.put(start, Lists.reverse(path));
 				}
-				Map<Location, List<Location>> reverse = distanceMatrix.get(end);
-				reverse.put(start, Lists.reverse(path));
 			}
 		}
 
 		return distanceMatrix;
 	}
 
-	private static List<Location> createPath(Location start, List<DefaultEdge> findPathBetween) {
-		List<Location> path = newArrayList(start);
+	private static List<Location> createPath(List<DefaultEdge> findPathBetween) {
+		List<Location> path = newArrayList((Location) findPathBetween.get(0).getSource());
 		for (DefaultEdge edge : findPathBetween) {
-			path.add(path.contains(((Location) edge.getSource())) ? ((Location) edge.getTarget()) : ((Location) edge.getSource()));
+			path.add((Location) edge.getTarget());
 		}
 		return path;
 	}
 
-	public List<Location> getPath(Location start, Location end) {
-		return distanceMatrix.get(start).get(end);
+	public Map<Location, Map<Location, List<Location>>> getDistanceMatrix() {
+		return distanceMatrix;
 	}
 
-	public String getPathToString(Location start, Location end) {
-		return Joiner.on(",").join(Iterables.transform(getPath(start, end), new com.google.common.base.Function<Location, String>() {
-			public String apply(Location input) {
-				return input.getLocationId();
+	public List<Location> getPath(List<Location> locations) {
+		ArrayList<Location> path = Lists.newArrayList();
+
+		for (int i = 1; i < locations.size(); i++) {
+			List<Location> subPath = distanceMatrix.get(locations.get(i - 1)).get(locations.get(i));
+			if (path.isEmpty()) {
+				path.addAll(subPath);
+			} else {
+				path.addAll(subPath.subList(1, subPath.size()));
 			}
-		}));
+		}
+
+		return path;
 	}
 }

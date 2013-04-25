@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.DirectedGraph;
+import org.jgrapht.graph.SimpleDirectedGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +22,8 @@ public class LabyrinthGetter {
 
 	private static final String STATR_LOCATION_ID = "start";
 
-	public static UndirectedGraph<Location, DefaultEdge> getLabyrinth(String mazeName) throws IOException {
-		UndirectedGraph<Location, DefaultEdge> labyrinth;
+	public static DirectedGraph<Location, DefaultEdge> getLabyrinth(String mazeName) throws IOException {
+		DirectedGraph<Location, DefaultEdge> labyrinth;
 		if (Database.isExists(mazeName)) {
 			labyrinth = getLabyrinthFromDb(mazeName);
 		} else {
@@ -33,16 +33,16 @@ public class LabyrinthGetter {
 		return labyrinth;
 	}
 
-	private static UndirectedGraph<Location, DefaultEdge> getLabyrinthFromDb(String mazeName) {
+	private static DirectedGraph<Location, DefaultEdge> getLabyrinthFromDb(String mazeName) {
 		return Database.getGraph(mazeName);
 	}
 
-	private static UndirectedGraph<Location, DefaultEdge> getLabyrinthFromWeb(String mazeName) throws IOException {
+	private static DirectedGraph<Location, DefaultEdge> getLabyrinthFromWeb(String mazeName) throws IOException {
 		LocationGetter locationGetter = new LocationGetter(mazeName);
 
 		LOG.info("------------------- Start init {} graph -------------------", mazeName);
 
-		UndirectedGraph<Location, DefaultEdge> graph = new SimpleGraph<Location, DefaultEdge>(DefaultEdge.class);
+		DirectedGraph<Location, DefaultEdge> graph = new SimpleDirectedGraph<Location, DefaultEdge>(DefaultEdge.class);
 
 		Location startLocation = locationGetter.getLocation(STATR_LOCATION_ID);
 		List<Location> locations = newArrayList(startLocation);
@@ -60,7 +60,7 @@ public class LabyrinthGetter {
 		return graph;
 	}
 
-	private static List<Location> getExitsLocation(List<Location> locations, LocationGetter locationGetter, UndirectedGraph<Location, DefaultEdge> graph) throws IOException {
+	private static List<Location> getExitsLocation(List<Location> locations, LocationGetter locationGetter, DirectedGraph<Location, DefaultEdge> graph) throws IOException {
 		List<Location> nextLocations = newArrayList();
 		for (Location from : locations) {
 

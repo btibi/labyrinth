@@ -22,7 +22,7 @@ public class LocationGetter {
 		this.mazeName = mazeName;
 	}
 
-	public Location getLocation(String locationId) throws IOException {
+	public Location getLocation(String locationId) {
 		return from(getLocationStream(locationId));
 	}
 
