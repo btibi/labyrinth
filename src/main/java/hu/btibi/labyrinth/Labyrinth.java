@@ -29,10 +29,10 @@ public class Labyrinth {
 	public static void main(String[] args) throws IOException {
 
 		for (String mazeName : mazeNames) {
+			LOG.info("------------------- Labyrinth: {} -------------------", mazeName);
 			DirectedGraph<Location, DefaultEdge> labyrinth = LabyrinthGetter.getLabyrinth(mazeName);
 			String path = new PathFinder().getShortestPath(labyrinth);
 			List<String> pathList = newArrayList(Splitter.on(",").split(path));
-			LOG.info("------------------- Labyrinth {} -------------------", mazeName);
 			LOG.info("Steps number: {}", pathList.size());
 			LOG.info("Path: {}", path);
 		}

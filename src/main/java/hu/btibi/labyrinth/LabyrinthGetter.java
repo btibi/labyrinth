@@ -63,20 +63,20 @@ public class LabyrinthGetter {
 
 	private static List<Location> getExitsLocation(List<Location> locations, LocationGetter locationGetter, DirectedGraph<Location, DefaultEdge> graph) throws IOException {
 		List<Location> nextLocations = newArrayList();
-		for (Location from : locations) {
+		for (Location source : locations) {
 
-			LOG.info("Init Location LocationId: {}, LocationType: {}", from.getLocationId(), from.getLocationType());
+			LOG.info("Init Location LocationId: {}, LocationType: {}", source.getLocationId(), source.getLocationType());
 
-			for (String fullLocationId : from.getExits()) {
+			for (String fullLocationId : source.getExits()) {
 				String nextLocationId = getLocationId(fullLocationId);
-				Location source = Iterables.find(graph.vertexSet(), new LocationById(nextLocationId), null);
-				if (source == null) {
-					source = locationGetter.getLocation(nextLocationId);
-					nextLocations.add(source);
-					graph.addVertex(source);
+				Location target = Iterables.find(graph.vertexSet(), new LocationById(nextLocationId), null);
+				if (target == null) {
+					target = locationGetter.getLocation(nextLocationId);
+					nextLocations.add(target);
+					graph.addVertex(target);
 				}
-				graph.addEdge(from, source);
-				LOG.info("Init Edge: {} - {}", from.getLocationId(), source.getLocationId());
+				graph.addEdge(source, target);
+				LOG.info("Init Edge: {} - {}", source.getLocationId(), target.getLocationId());
 
 			}
 		}
