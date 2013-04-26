@@ -1,6 +1,7 @@
 package hu.btibi.labyrinth;
 
 import static com.google.common.collect.Lists.newArrayList;
+import hu.btibi.labyrinth.db.Database;
 import hu.btibi.labyrinth.domain.DefaultEdge;
 import hu.btibi.labyrinth.domain.Location;
 import hu.btibi.labyrinth.predicates.LocationById;

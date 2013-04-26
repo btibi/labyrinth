@@ -32,7 +32,9 @@ public class Labyrinth {
 			DirectedGraph<Location, DefaultEdge> labyrinth = LabyrinthGetter.getLabyrinth(mazeName);
 			String path = new PathFinder().getShortestPath(labyrinth);
 			List<String> pathList = newArrayList(Splitter.on(",").split(path));
-			LOG.info("{} labyrinth {} lepest tartalmaz. Lepesek: {}", mazeName, pathList.size(), path);
+			LOG.info("------------------- Labyrinth {} -------------------", mazeName);
+			LOG.info("Steps number: {}", pathList.size());
+			LOG.info("Path: {}", path);
 		}
 	}
 
