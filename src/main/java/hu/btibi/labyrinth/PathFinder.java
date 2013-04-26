@@ -8,6 +8,7 @@ import hu.btibi.labyrinth.domain.DefaultEdge;
 import hu.btibi.labyrinth.domain.DefaultWeightedEdge;
 import hu.btibi.labyrinth.domain.Location;
 import hu.btibi.labyrinth.domain.LocationType;
+import hu.btibi.labyrinth.predicates.LocationById;
 import hu.btibi.labyrinth.predicates.LocationByType;
 
 import java.util.Collections;
@@ -40,8 +41,8 @@ public class PathFinder {
 		weightedGraph.addEdge(dummy, find(weightedGraph.vertexSet(), new LocationByType(START)), new DefaultWeightedEdge(0));
 
 		List<Location> output = findHamiltoCycle(weightedGraph);
-
 		output.remove(dummy);
+
 		Collections.rotate(output, -1 * output.indexOf(find(output, new LocationByType(START))));
 
 		return output;
@@ -50,38 +51,29 @@ public class PathFinder {
 	public static List<Location> findHamiltoCycle(SimpleWeightedGraph<Location, DefaultWeightedEdge> weightedGraph) {
 		List<Location> vertices = newArrayList(weightedGraph.vertexSet());
 
-		List<Location> tour = newArrayList();
+		Location startLocation = find(vertices, new LocationByType(START));
+		Location dummyLocation = find(vertices, new LocationById("DUMMY"));
+		Location exitLocation = find(vertices, new LocationByType(EXIT));
+		
+		List<Location> tour = newArrayList(exitLocation, dummyLocation, startLocation);
+		vertices.removeAll(tour);
 
 		while (tour.size() != weightedGraph.vertexSet().size()) {
-			int minVertexFound = 0;
+			Location removeLocation = null;
 
-			if (!tour.isEmpty()) {
-				Location v = tour.get(tour.size() - 1);
-				double minEdgeWeight = Double.MAX_VALUE;
-				boolean found = false;
-				for (int j = 0; j < vertices.size(); j++) {
-					DefaultWeightedEdge edge = weightedGraph.getEdge(v, vertices.get(j));
-					if (edge != null) {
-						double weight = edge.getWeight();
-						if (weight < minEdgeWeight) {
-							minEdgeWeight = weight;
-							minVertexFound = j;
-							found = true;
-						}
-					}
+			Location lastLocation = tour.get(tour.size() - 1);
+			double minEdgeWeight = Double.MAX_VALUE;
+			for (int j = 0; j < vertices.size(); j++) {
+				DefaultWeightedEdge fromLast = weightedGraph.getEdge(lastLocation, vertices.get(j));
+				double fromWeight = fromLast.getWeight();
+				if (fromWeight < minEdgeWeight) {
+					minEdgeWeight = fromWeight;
+					removeLocation = vertices.get(j);
 				}
-				if (!found) {
-					throw new RuntimeException("No Hamilton Cycle!");
-				}
-				Location location = vertices.get(minVertexFound);
-				tour.add(location);
-				vertices.remove(location);
-			} else {
-				Location exitLocation = find(vertices, new LocationByType(EXIT));
-				tour.add(exitLocation);
-				vertices.remove(exitLocation);
 			}
 
+			tour.add(removeLocation);
+			vertices.remove(removeLocation);
 		}
 		return tour;
 	}
