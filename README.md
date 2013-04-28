@@ -1,3 +1,3 @@
-labyrinth
+LBi Labyrinth Game
 =========
-see: [LBi Labyrinth Game](http://labyrinth.lbi.co.uk/)
+See: [Labyrinth programming challenge](http://labyrinth.lbi.co.uk/)
