@@ -7,25 +7,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jgrapht.graph.SimpleWeightedGraph;
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 public class WeightedGraphCreator {
 
-	public static SimpleWeightedGraph<Location, DefaultWeightedEdge> createWeightedGraph(DistanceMatrix distanceMatrix) {
-		SimpleWeightedGraph<Location, DefaultWeightedEdge> weightedGraph = new SimpleWeightedGraph<Location, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+	public static SimpleDirectedWeightedGraph<Location, DefaultWeightedEdge> createWeightedGraph(DistanceMatrix distanceMatrix) {
+		SimpleDirectedWeightedGraph<Location, DefaultWeightedEdge> directedWeightedGraph = new SimpleDirectedWeightedGraph<Location, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 
 		for (Entry<Location, Map<Location, List<Location>>> startEntry : distanceMatrix.getDistanceMatrix().entrySet()) {
 			Location startLocation = startEntry.getKey();
-			weightedGraph.addVertex(startLocation);
+			directedWeightedGraph.addVertex(startLocation);
 
 			for (Entry<Location, List<Location>> endEntry : startEntry.getValue().entrySet()) {
 				Location endLocation = endEntry.getKey();
-				weightedGraph.addVertex(endLocation);
+				directedWeightedGraph.addVertex(endLocation);
 
-				weightedGraph.addEdge(startLocation, endLocation, new DefaultWeightedEdge(endEntry.getValue().size()));
+				directedWeightedGraph.addEdge(startLocation, endLocation, new DefaultWeightedEdge(endEntry.getValue().size()));
 			}
 		}
 
-		return weightedGraph;
+		return directedWeightedGraph;
 	}
 }

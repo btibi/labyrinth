@@ -40,18 +40,13 @@ public class DistanceMatrix {
 				distanceMatrix.put(start, new HashMap<Location, List<Location>>());
 			}
 			Map<Location, List<Location>> sub = distanceMatrix.get(start);
-			for (int j = i + 1; j < locations.size(); j++) {
+			for (int j = 0; j < locations.size(); j++) {
 				Location end = locations.get(j);
-				List<DefaultEdge> findPathBetween = findPathBetween(labyrinth, start, end);
+				List<DefaultEdge> findPathBetween = start.equals(end) ? null : findPathBetween(labyrinth, start, end);
+
 				if (findPathBetween != null) {
 					List<Location> path = createPath(findPathBetween);
 					sub.put(end, path);
-
-					if (!distanceMatrix.containsKey(end)) {
-						distanceMatrix.put(end, new HashMap<Location, List<Location>>());
-					}
-					Map<Location, List<Location>> reverse = distanceMatrix.get(end);
-					reverse.put(start, Lists.reverse(path));
 				}
 			}
 		}
@@ -60,9 +55,9 @@ public class DistanceMatrix {
 	}
 
 	private static List<Location> createPath(List<DefaultEdge> findPathBetween) {
-		List<Location> path = newArrayList((Location) findPathBetween.get(0).getSource());
+		List<Location> path = newArrayList(findPathBetween.get(0).getSource());
 		for (DefaultEdge edge : findPathBetween) {
-			path.add((Location) edge.getTarget());
+			path.add(edge.getTarget());
 		}
 		return path;
 	}

@@ -16,13 +16,13 @@ public class DefaultWeightedEdge extends org.jgrapht.graph.DefaultWeightedEdge {
 	}
 
 	@Override
-	public Object getSource() {
-		return super.getSource();
+	public Location getSource() {
+		return (Location) super.getSource();
 	}
 
 	@Override
-	public Object getTarget() {
-		return super.getTarget();
+	public Location getTarget() {
+		return (Location) super.getTarget();
 	}
 
 }

@@ -4,12 +4,12 @@ public class DefaultEdge extends org.jgrapht.graph.DefaultEdge {
 	private static final long serialVersionUID = -3045027880461997868L;
 
 	@Override
-	public Object getSource() {
-		return super.getSource();
+	public Location getSource() {
+		return (Location) super.getSource();
 	}
 
 	@Override
-	public Object getTarget() {
-		return super.getTarget();
+	public Location getTarget() {
+		return (Location) super.getTarget();
 	}
 }
