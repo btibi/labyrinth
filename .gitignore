@@ -6,3 +6,4 @@ db/
 labirinth_logFile.log
 labyrinth.iml
 labirinth_logFile*.log
+config.properties
