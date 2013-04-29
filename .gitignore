@@ -5,4 +5,4 @@ db/
 .settings/org.eclipse.m2e.core.prefs
 labirinth_logFile.log
 labyrinth.iml
-labirinth_logFile.2013-04-19.log
+labirinth_logFile*.log

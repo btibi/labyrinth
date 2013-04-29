@@ -2,6 +2,8 @@ package hu.btibi.labyrinth;
 
 import static hu.btibi.labyrinth.LocationConverter.from;
 import hu.btibi.labyrinth.domain.Location;
+import hu.btibi.labyrinth.properties.Properties;
+import hu.btibi.labyrinth.properties.PropertiesKey;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class LocationGetter {
 	private static final Logger LOG = LoggerFactory.getLogger(LabyrinthGetter.class);
 
-	private static final String URL = "http://labyrinth.lbi.co.uk/Maze/Location/%s/%s/json";
+	private static final String URL = Properties.INSTANCE.getProperty(PropertiesKey.URL_PATTERN);
 
 	private String mazeName;
 

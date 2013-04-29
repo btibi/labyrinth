@@ -26,7 +26,7 @@
 	</appender>
 
 	<logger name="hu.btibi.labyrinth" level="TRACE" />
-	<logger name="hu.btibi.labyrinth.db" level="WARN" />
+	<logger name="hu.btibi.labyrinth.database" level="WARN" />
 
 	<root level="debug">
 		<appender-ref ref="STDOUT" />

@@ -1,10 +1,12 @@
 package hu.btibi.labyrinth;
 
 import static com.google.common.collect.Lists.newArrayList;
-import hu.btibi.labyrinth.db.Database;
+import static hu.btibi.labyrinth.properties.PropertiesKey.STORE_MAZE_IN_DB;
+import hu.btibi.labyrinth.database.Database;
 import hu.btibi.labyrinth.domain.DefaultEdge;
 import hu.btibi.labyrinth.domain.Location;
 import hu.btibi.labyrinth.predicates.LocationById;
+import hu.btibi.labyrinth.properties.Properties;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,11 +27,14 @@ public class LabyrinthGetter {
 
 	public static DirectedGraph<Location, DefaultEdge> getLabyrinth(String mazeName) throws IOException {
 		DirectedGraph<Location, DefaultEdge> labyrinth;
-		if (Database.isExists(mazeName)) {
+		boolean storeMazeInDb = Properties.INSTANCE.getBooleanProperty(STORE_MAZE_IN_DB);
+		if (storeMazeInDb && Database.isExists(mazeName)) {
 			labyrinth = getLabyrinthFromDb(mazeName);
 		} else {
 			labyrinth = getLabyrinthFromWeb(mazeName);
-			Database.save(mazeName, labyrinth);
+			if (storeMazeInDb) {
+				Database.save(mazeName, labyrinth);
+			}
 		}
 		return labyrinth;
 	}
