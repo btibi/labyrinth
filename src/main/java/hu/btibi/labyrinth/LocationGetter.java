@@ -25,10 +25,10 @@ public class LocationGetter {
 	}
 
 	public Location getLocation(String locationId) {
-		return from(getLocationStream(locationId));
+		return from(getLocationString(locationId));
 	}
 
-	private String getLocationStream(String locationId) {
+	private String getLocationString(String locationId) {
 		String url = String.format(URL, mazeName, locationId);
 
 		InputStream jsonStream = null;
